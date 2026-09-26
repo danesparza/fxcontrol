@@ -1,0 +1,7 @@
+Package: fxcontrol
+Version: 1.0.{build}
+Architecture: armhf
+Maintainer: Dan Esparza <esparza.dan@gmail.com>
+Installed-Size: 4500
+Homepage: https://github.com/danesparza/fxcontrol
+Description: REST service for fx service discovery from Raspberry Pi

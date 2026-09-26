@@ -1,0 +1,9 @@
+server:
+  port: 3090
+  allowed-origins: "*"
+
+# Local network discovery for fxcontrol.
+discovery:
+  enabled: true
+  name: "" # Default: service-hostname-port; maximum 63 bytes
+  id: "" # Set a unique stable ID to retain identity across hostname/port changes
