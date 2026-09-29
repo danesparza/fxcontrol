@@ -1,3 +1,4 @@
+basePath: /v1
 definitions:
   api.DiscoveryResponse:
     properties:
@@ -33,6 +34,12 @@ definitions:
     type: object
 info:
   contact: {}
+  description: fxControl discovery REST service
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: fxControl
+  version: "1.0"
 paths:
   /discover/:
     get:

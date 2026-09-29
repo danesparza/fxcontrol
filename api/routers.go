@@ -29,8 +29,6 @@ func NewRouter(apiService Service) http.Handler {
 		MaxAge:           300, // Cache successful CORS preflight responses for five minutes.
 	}))
 
-	r.Get("/discover/", apiService.Discover)
-
 	r.Route("/v1", func(r chi.Router) {
 
 		// Configuration routes currently return placeholder text.
