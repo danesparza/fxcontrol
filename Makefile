@@ -1,7 +1,7 @@
 .PHONY: gen-mocks test lint-new swagger
 
 gen-mocks:
-	docker run --rm -v "$(CURDIR):/src" -w /src golang:1.26.3 go run github.com/vektra/mockery/v2@v2.53.5 --config .mockery.yaml
+	docker run --rm -v "$(CURDIR):/src" -w /src golang:1.26.6 go run github.com/vektra/mockery/v2@v2.53.5 --config .mockery.yaml
 
 test:
 	go test ./...

@@ -17,9 +17,9 @@ func TestDiscoveryRoutes(t *testing.T) {
 			method, path string
 			status       int
 		}{
-			{http.MethodGet, "/discover/", http.StatusOK},
+			{http.MethodGet, "/discover/", http.StatusNotFound},
 			{http.MethodGet, "/v1/discover/", http.StatusOK},
-			{http.MethodPost, "/discover/", http.StatusMethodNotAllowed},
+			{http.MethodPost, "/discover/", http.StatusNotFound},
 			{http.MethodPost, "/v1/discover/", http.StatusMethodNotAllowed},
 		} {
 			t.Run(tc.method+tc.path, func(t *testing.T) {
@@ -51,7 +51,7 @@ func TestDiscoveryRoutes(t *testing.T) {
 }
 
 func TestDiscoveryReturnsCachedServices(t *testing.T) {
-	for _, path := range []string{"/discover/", "/v1/discover/"} {
+	for _, path := range []string{"/v1/discover/"} {
 		t.Run(path, func(t *testing.T) {
 			cache := NewMockDiscoveryCache(t)
 			cache.EXPECT().Snapshot().Return([]model.Service{{ID: "porch", Service: "fxpixel", Addresses: []string{"192.168.1.10"}, Port: 3030}}).Once()

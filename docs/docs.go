@@ -34,22 +34,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/v1/discover/": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "List discovered FX services",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.DiscoveryResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {

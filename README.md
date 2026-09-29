@@ -16,10 +16,10 @@ in `internal/server`.
 
 ```sh
 go run . start --listen :3090
-curl http://localhost:3090/discover/
+curl http://localhost:3090/v1/discover/
 ```
 
-`GET /discover/` and `GET /v1/discover/` return the latest in-memory snapshot
+`GET /v1/discover/` returns the latest in-memory snapshot
 immediately. Discovery scans `_fx._tcp.local.` at startup and every 30 seconds,
 with a five-second scan window. It recognizes the shared version 1 advertisements
 from fxaudio, fxpixel, fxdmx, and fxtrigger. Multicast DNS must be available on the
@@ -58,7 +58,7 @@ used by a client. SIGINT/SIGTERM stop discovery and gracefully drain HTTP reques
 
 ## Development
 
-Requires Go 1.26.3 or newer. Mock generation additionally requires Docker.
+Requires Go 1.26.6 or newer. Mock generation additionally requires Docker.
 
 ```sh
 make gen-mocks  # Run pinned mockery in a Go Docker image

@@ -19,7 +19,6 @@ type DiscoveryResponse struct {
 // @Produce json
 // @Success 200 {object} DiscoveryResponse
 // @Router /discover/ [get]
-// @Router /v1/discover/ [get]
 func (service Service) Discover(rw http.ResponseWriter, req *http.Request) {
 	services := make([]model.Service, 0)
 	if service.Discovery != nil {

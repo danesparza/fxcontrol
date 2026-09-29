@@ -51,14 +51,4 @@ paths:
           schema:
             $ref: '#/definitions/api.DiscoveryResponse'
       summary: List discovered FX services
-  /v1/discover/:
-    get:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/api.DiscoveryResponse'
-      summary: List discovered FX services
 swagger: "2.0"

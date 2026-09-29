@@ -15,8 +15,8 @@ var rootCmd = &cobra.Command{
 on the local network using multicast DNS and exposes the results as JSON.
 
 Use "fxcontrol start" to launch the HTTP API and background discovery loop.
-Discovery runs at startup and every 30 seconds. GET /discover/ and
-GET /v1/discover/ return the latest cached results immediately.
+Discovery runs at startup and every 30 seconds. GET /v1/discover/ returns
+the latest cached results immediately.
 
 Use "fxcontrol version" to display build version information.`,
 }

@@ -8,7 +8,6 @@ env:
   DEBIAN_PACKAGE_NAME: fxcontrol-1.1.${{github.run_number}}_armhf
   RELEASE_VERSION: v1.1.${{github.run_number}}
   PACKAGE_PATH: github.com/danesparza/fxcontrol
-  GO_VERSION: "1.25.x"
 
 jobs:
   vulnerabilitycheck:
@@ -21,10 +20,10 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: ${{env.GO_VERSION}}
+          go-version-file: go.mod
           check-latest: true
 
-      # v1.7.0 supports Go 1.25; newer scanner releases require Go 1.26.
+      # Build the pinned scanner with the same Go toolchain as the application.
       - name: Get scanner tool
         run: go install golang.org/x/vuln/cmd/govulncheck@v1.7.0
 
@@ -34,7 +33,6 @@ jobs:
   test:
     name: Tests
     runs-on: ubuntu-latest
-    container: golang:latest
 
     steps:
       - uses: actions/checkout@v6
@@ -42,7 +40,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: ${{env.GO_VERSION}}
+          go-version-file: go.mod
           check-latest: true
 
       - name: Get dependencies
@@ -50,6 +48,14 @@ jobs:
 
       - name: Test
         run: go test -v ./...
+
+      - name: Lint
+        run: make lint-new
+
+      - name: Verify generated API documentation
+        run: |
+          make swagger
+          git diff --exit-code -- docs/
 
   build:
     name: Build
@@ -61,7 +67,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: ${{env.GO_VERSION}}
+          go-version-file: go.mod
           check-latest: true
 
       - name: Get compiler tool
@@ -102,6 +108,14 @@ jobs:
         with:
           name: Release binaries
           path: /tmp/binaries
+
+      - uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          check-latest: true
 
       - name: Get package pusher
         run: go install github.com/danesparza/package-pusher@latest
