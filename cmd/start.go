@@ -1,40 +1,41 @@
-/*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
-	"fmt"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
+	"github.com/danesparza/fxcontrol/api"
+	_ "github.com/danesparza/fxcontrol/docs"
+	"github.com/danesparza/fxcontrol/internal/discovery"
+	"github.com/danesparza/fxcontrol/internal/server"
 	"github.com/spf13/cobra"
 )
 
-// startCmd represents the start command
+var listenAddress string
+
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("start called")
+	Short: "Start the HTTP API and background FX discovery",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx, cancel := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
+		defer cancel()
+		listener, err := net.Listen("tcp", listenAddress)
+		if err != nil {
+			return err
+		}
+		defer listener.Close()
+		cache := &discovery.Cache{}
+		stopped := make(chan struct{})
+		go func() { defer close(stopped); cache.Run(ctx, discovery.NetworkScanner{}) }()
+		defer func() { cancel(); <-stopped }()
+		return server.Serve(ctx, listener, api.NewRouter(api.Service{StartTime: time.Now(), Discovery: cache}))
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// startCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	startCmd.Flags().StringVar(&listenAddress, "listen", ":3090", "HTTP listen address")
 }

@@ -1,5 +1,4 @@
-// The version package provides a location to set the release versions for all
-// packages to consume, without creating import cycles.
+// Package version provides build version metadata shared by the CLI and API.
 //
 // This package should not import any other fxcontrol packages.
 package version
@@ -10,13 +9,13 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
-// Version is the main version number that is being run at the moment.
+// Version is the major and minor release version.
 var Version = "1.1"
 
-// BuildNumber is the build number.  Set during build.  Empty for local dev
+// BuildNumber is the patch component, set at build time and defaulting to "0".
 var BuildNumber = "0"
 
-// CommitID is the commit information.  Set during build.  Empty for local dev
+// CommitID is the full Git commit hash, set at build time and empty for local builds.
 var CommitID string
 
 // Prerelease is a pre-release marker for the version. If this is "-" (dash)
@@ -24,9 +23,8 @@ var CommitID string
 // such as "dev" (in development), "beta", "rc1", etc.
 var Prerelease = "dev"
 
-// SemVer is an instance of version.Version. This has the secondary
-// benefit of verifying during tests and init time that our version is a
-// proper semantic version, which should always be the case.
+// SemVer holds the release version parsed during initialization.
+// It validates Version and BuildNumber and does not include Prerelease.
 var SemVer *version.Version
 
 func getFormattedVersion() string {
@@ -37,11 +35,10 @@ func init() {
 	SemVer = version.Must(version.NewVersion(getFormattedVersion()))
 }
 
-// Header is the header name used to send the current version
-// in http requests.
+// Header is the HTTP response header containing the fxcontrol build version.
 const Header = "fxcontrol-service-version"
 
-// String returns the complete version string, including prerelease
+// String returns the release version with the prerelease suffix unless it is "-".
 func String() string {
 	if Prerelease != "-" {
 		return fmt.Sprintf("%s-%s", getFormattedVersion(), Prerelease)

@@ -1,4 +1,57 @@
+definitions:
+  api.DiscoveryResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Service'
+        type: array
+      message:
+        type: string
+    type: object
+  model.Service:
+    properties:
+      addresses:
+        items:
+          type: string
+        type: array
+      api:
+        type: string
+      host:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      port:
+        type: integer
+      scheme:
+        type: string
+      service:
+        type: string
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /discover/:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.DiscoveryResponse'
+      summary: List discovered FX services
+  /v1/discover/:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.DiscoveryResponse'
+      summary: List discovered FX services
 swagger: "2.0"

@@ -1,0 +1,18 @@
+with-expecter: true
+filename: mock_scanner_test.go
+mockname: MockScanner
+outpkg: discovery
+inpackage: true
+dir: internal/discovery
+packages:
+  github.com/danesparza/fxcontrol/internal/discovery:
+    interfaces:
+      Scanner:
+  github.com/danesparza/fxcontrol/api:
+    config:
+      dir: api
+      filename: mock_discovery_cache_test.go
+      mockname: MockDiscoveryCache
+      outpkg: api
+    interfaces:
+      DiscoveryCache:

@@ -3,5 +3,89 @@
     "info": {
         "contact": {}
     },
-    "paths": {}
+    "paths": {
+        "/discover/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List discovered FX services",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.DiscoveryResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/discover/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List discovered FX services",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.DiscoveryResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.DiscoveryResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Service"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Service": {
+            "type": "object",
+            "properties": {
+                "addresses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "api": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "scheme": {
+                    "type": "string"
+                },
+                "service": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }

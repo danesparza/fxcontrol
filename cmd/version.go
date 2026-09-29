@@ -1,6 +1,3 @@
-/*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -10,20 +7,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// versionCmd represents the version command
+// versionCmd prints the build version and abbreviated commit ID, when available.
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Shows the version information",
 	Run: func(cmd *cobra.Command, args []string) {
-		//	Show the version number
 		fmt.Printf("\nfxcontrol version %s", version.String())
 
-		//	Show the CommitID if available:
+		// Append the first seven characters of the build commit ID, when set.
 		if version.CommitID != "" {
 			fmt.Printf(" (%s)", version.CommitID[:7])
 		}
 
-		//	Trailing space and newline
 		fmt.Println(" ")
 	},
 }

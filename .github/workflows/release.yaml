@@ -1,0 +1,112 @@
+name: Build and release
+
+on: [push]
+
+env:
+  APP_NAME: fxcontrol
+  APP_VERSION: 1.1.${{github.run_number}}
+  DEBIAN_PACKAGE_NAME: fxcontrol-1.1.${{github.run_number}}_armhf
+  RELEASE_VERSION: v1.1.${{github.run_number}}
+  PACKAGE_PATH: github.com/danesparza/fxcontrol
+  GO_VERSION: "1.25.x"
+
+jobs:
+  vulnerabilitycheck:
+    name: Vulnerabilities scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{env.GO_VERSION}}
+          check-latest: true
+
+      # v1.7.0 supports Go 1.25; newer scanner releases require Go 1.26.
+      - name: Get scanner tool
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.7.0
+
+      - name: Scan for vulnerabilities
+        run: govulncheck ./...
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    container: golang:latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{env.GO_VERSION}}
+          check-latest: true
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Test
+        run: go test -v ./...
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{env.GO_VERSION}}
+          check-latest: true
+
+      - name: Get compiler tool
+        run: go install github.com/mitchellh/gox@latest
+
+      - name: Get utilities
+        run: go install github.com/danesparza/tokenreplace@latest
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Create binaries for all platforms
+        run: mkdir -p /tmp/binaries; gox -osarch="linux/arm64" -ldflags "-X ${PACKAGE_PATH}/version.BuildNumber=${GITHUB_RUN_NUMBER} -X ${PACKAGE_PATH}/version.CommitID=${GITHUB_SHA} -X '${PACKAGE_PATH}/version.Prerelease=-'" -output "/tmp/binaries/${APP_NAME}_{{.OS}}_{{.Arch}}" $PACKAGE_PATH/...
+
+      - name: Setup the debian package
+        run: mkdir -p "/tmp/packagestage"; cp -r ./dist "/tmp/packagestage/${DEBIAN_PACKAGE_NAME}"; chmod 755 "/tmp/packagestage/${DEBIAN_PACKAGE_NAME}/DEBIAN/postinst"; chmod 755 "/tmp/packagestage/${DEBIAN_PACKAGE_NAME}/DEBIAN/prerm"; tokenreplace -file "/tmp/packagestage/${DEBIAN_PACKAGE_NAME}/DEBIAN/control" -token="{build}" -replacement="${GITHUB_RUN_NUMBER}";
+
+      - name: Create the debian package
+        run: mkdir -p "/tmp/packagestage/${DEBIAN_PACKAGE_NAME}/usr/bin"; cp "/tmp/binaries/fxcontrol_linux_arm64" "/tmp/packagestage/${DEBIAN_PACKAGE_NAME}/usr/bin/fxcontrol"; cd /tmp/packagestage; dpkg-deb -Zxz --build "${DEBIAN_PACKAGE_NAME}"; mv *.deb "/tmp/binaries";
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Release binaries
+          path: /tmp/binaries
+
+  publish:
+    name: Publish debian package
+    runs-on: ubuntu-latest
+    needs:
+      - vulnerabilitycheck
+      - test
+      - build
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: Release binaries
+          path: /tmp/binaries
+
+      - name: Get package pusher
+        run: go install github.com/danesparza/package-pusher@latest
+
+      - name: Push artifact
+        run: export PATH=${PATH}:`go env GOPATH`/bin; package-pusher -file /tmp/binaries/${DEBIAN_PACKAGE_NAME}.deb -token ${{secrets.PACKASSIST_AUTH_TOKEN}}
+
+

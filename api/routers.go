@@ -9,43 +9,43 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
+// NewRouter configures the HTTP middleware, API routes, and Swagger UI.
 func NewRouter(apiService Service) http.Handler {
-	//	Create a router and set up our REST endpoints...
 	r := chi.NewRouter()
 
-	//	Add middleware
 	r.Use(middleware.RequestID)
 	// Keep the socket peer address; forwarded IP headers are not trusted.
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Compress(5))
 	r.Use(ApiVersionMiddleware)
 
-	//	... including CORS middleware
+	// Allow browser clients from HTTP and HTTPS origins to access the API.
 	r.Use(cors.Handler(cors.Options{
-		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
-		MaxAge:           300, // Maximum value not ignored by any of major browsers
+		MaxAge:           300, // Cache successful CORS preflight responses for five minutes.
 	}))
+
+	r.Get("/discover/", apiService.Discover)
 
 	r.Route("/v1", func(r chi.Router) {
 
-		//	System config
+		// Configuration routes currently return placeholder text.
 		r.Route("/config", func(r chi.Router) {
-			r.Get("/", apiService.ShowUI)       // Get all system config keys and values
-			r.Post("/{key}", apiService.ShowUI) // Update system config value
+			r.Get("/", apiService.ShowUI)
+			r.Post("/{key}", apiService.ShowUI)
 		})
 
-		//	Discovery management
+		// Return the most recent background discovery snapshot.
 		r.Route("/discover", func(r chi.Router) {
-			r.Get("/", apiService.ShowUI) // Discover fx devices
+			r.Get("/", apiService.Discover)
 		})
 	})
 
-	//	SWAGGER
+	// Serve interactive documentation for the registered API endpoints.
 	r.Mount("/swagger", httpSwagger.WrapHandler)
 
 	return r
