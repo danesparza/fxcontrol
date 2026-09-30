@@ -1,4 +1,4 @@
-# fxcontrol [![Build and release](https://github.com/danesparza/fxxontrol/actions/workflows/release.yaml/badge.svg)](https://github.com/danesparza/fxcontrol/actions/workflows/release.yaml) 
+# fxcontrol [![Build and release](https://github.com/danesparza/fxcontrol/actions/workflows/release.yaml/badge.svg)](https://github.com/danesparza/fxcontrol/actions/workflows/release.yaml) 
 
 Controller API for FX services on the local network.
 
